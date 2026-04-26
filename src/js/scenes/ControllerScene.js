@@ -488,22 +488,22 @@ export class ControllerScene {
     drawControlRoomFrame(ctx, this.t);
 
     // Tutorial-ish hint
-    ctx.font = '14px "VT323", monospace';
-    ctx.fillStyle = 'rgba(0,255,136,0.6)';
+    ctx.font = 'bold 20px "VT323", monospace';
+    ctx.fillStyle = 'rgba(0,255,136,0.7)';
     ctx.textAlign = 'center';
-    ctx.fillText('CLICK ENTITY -> CLICK PORTAL TO ROUTE  //  [F] FREEZE  [Q] QUARANTINE', ARENA.w / 2, ARENA.h - 26);
+    ctx.fillText('TAP ENTITY -> TAP PORTAL TO ROUTE', ARENA.w / 2, ARENA.h - 32);
 
     // Intro overlay
     if (this.intro > 0) {
       ctx.fillStyle = `rgba(0,0,0,${Math.min(0.55, this.intro / 1.4)})`;
       ctx.fillRect(0, 0, ARENA.w, ARENA.h);
-      ctx.font = '48px "VT323", monospace';
+      ctx.font = 'bold 60px "VT323", monospace';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#00ff88';
-      ctx.fillText('CONTROLLER ONLINE', ARENA.w / 2, ARENA.h / 2 - 20);
-      ctx.font = '20px "VT323", monospace';
+      ctx.fillText('CONTROLLER ONLINE', ARENA.w / 2, ARENA.h / 2 - 24);
+      ctx.font = '30px "VT323", monospace';
       ctx.fillStyle = '#d8ffe9';
-      ctx.fillText('route every entrant to the correct portal', ARENA.w / 2, ARENA.h / 2 + 18);
+      ctx.fillText('route every entrant to the correct portal', ARENA.w / 2, ARENA.h / 2 + 24);
     }
   }
 }

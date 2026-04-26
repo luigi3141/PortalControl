@@ -10,7 +10,7 @@ export class Portal {
     this.archetype = def.archetype;
     this.x = def.x * arena.w;
     this.y = def.y * arena.h;
-    this.r = 38;
+    this.r = 44;
     this.t = Math.random() * Math.PI * 2;
     this.flash = 0;
   }
@@ -88,14 +88,14 @@ export class Portal {
     }
 
     // Label above
-    const labelY = y - this.r - 14;
-    ctx.font = '14px "VT323", monospace';
+    const labelY = y - this.r - 16;
+    ctx.font = 'bold 22px "VT323", monospace';
     ctx.textAlign = 'center';
     ctx.fillStyle = baseColor;
     ctx.fillText(this.label.toUpperCase(), x, labelY);
 
     // Icon in center
-    ctx.font = '28px sans-serif';
+    ctx.font = '44px sans-serif';
     ctx.textBaseline = 'middle';
     ctx.fillText(this.icon, x, y + 2);
     ctx.textBaseline = 'alphabetic';

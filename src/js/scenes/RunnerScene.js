@@ -529,6 +529,72 @@ export class RunnerScene {
     });
   }
 
+  drawTargetArrow(ctx) {
+    if (this.intro > 0) return;
+    const target = this.portals.find((p) => p.id === this.preferredPortal.id);
+    if (!target) return;
+    const dx = target.x - this.player.x;
+    const dy = target.y - this.player.y;
+    const d = Math.hypot(dx, dy);
+    if (d < target.r + 30) return; // hide arrow when right at the portal
+    const ang = Math.atan2(dy, dx);
+    const dist = Math.min(60, this.player.radius + 32);
+    const ax = this.player.x + Math.cos(ang) * dist;
+    const ay = this.player.y + Math.sin(ang) * dist;
+    const pulse = 0.6 + 0.4 * Math.sin(this.t * 6);
+    ctx.save();
+    ctx.translate(ax, ay);
+    ctx.rotate(ang);
+    ctx.fillStyle = target.color;
+    ctx.globalAlpha = pulse;
+    ctx.beginPath();
+    ctx.moveTo(14, 0);
+    ctx.lineTo(-6, -8);
+    ctx.lineTo(-2, 0);
+    ctx.lineTo(-6, 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#ffffff';
+    ctx.globalAlpha = 0.7;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawTargetBanner(ctx) {
+    if (this.intro > 0) return;
+    const target = this.preferredPortal;
+    // Sit just under the top exit-MENU button (ctx.translate is 0,0 here).
+    const cx = ARENA.w / 2;
+    const cy = 50;
+    const text = `→ ${target.label.toUpperCase()}`;
+    ctx.save();
+    ctx.font = 'bold 28px "VT323", monospace';
+    const tw = ctx.measureText(text).width;
+    const padX = 18;
+    const iconSize = 30;
+    const totalW = tw + padX * 2 + iconSize + 10;
+    const totalH = 40;
+    // Background pill
+    ctx.fillStyle = 'rgba(5, 15, 10, 0.85)';
+    ctx.fillRect(cx - totalW / 2, cy - totalH / 2, totalW, totalH);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = target.color;
+    ctx.strokeRect(cx - totalW / 2 + 0.5, cy - totalH / 2 + 0.5, totalW - 1, totalH - 1);
+    // Icon
+    ctx.font = '24px sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText(target.icon, cx - totalW / 2 + padX, cy + 1);
+    // Label
+    ctx.font = 'bold 22px "VT323", monospace';
+    ctx.fillStyle = target.color;
+    ctx.fillText(text, cx - totalW / 2 + padX + iconSize + 6, cy + 1);
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+
   draw(ctx) {
     const shake = this.particles.getShake();
     ctx.save();
@@ -573,12 +639,16 @@ export class RunnerScene {
       ctx.stroke();
     }
 
-    // Portals (preferred highlighted)
+    // Portals (preferred highlighted, others dimmed)
     for (const p of this.portals) {
+      const isTarget = p.id === this.preferredPortal.id;
+      ctx.save();
+      if (!isTarget) ctx.globalAlpha = 0.55;
       p.draw(ctx, {
-        highlight: p.id === this.preferredPortal.id,
-        danger: p.id !== this.preferredPortal.id && Math.sin(this.t * 4 + p.x) > 0.6,
+        highlight: isTarget,
+        danger: !isTarget && Math.sin(this.t * 4 + p.x) > 0.6,
       });
+      ctx.restore();
     }
 
     // Traffic
@@ -587,10 +657,16 @@ export class RunnerScene {
     // Player
     this.player.draw(ctx);
 
+    // Target arrow above player pointing toward preferred portal
+    this.drawTargetArrow(ctx);
+
     // Particles
     this.particles.draw(ctx);
 
     ctx.restore();
+
+    // Persistent target banner (above shake transform so it's always crisp)
+    this.drawTargetBanner(ctx);
 
     // Intro overlay
     if (this.intro > 0) {
@@ -600,19 +676,22 @@ export class RunnerScene {
       ctx.fillRect(0, 0, ARENA.w, ARENA.h);
       ctx.globalAlpha = 1;
 
-      ctx.font = '48px "VT323", monospace';
+      ctx.font = 'bold 60px "VT323", monospace';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#00ff88';
-      ctx.fillText(`YOU ARE A ${this.player.archetype.label.toUpperCase()}`, ARENA.w / 2, ARENA.h / 2 - 30);
-      ctx.font = '28px "VT323", monospace';
+      ctx.fillText(`YOU ARE A ${this.player.archetype.label.toUpperCase()}`, ARENA.w / 2, ARENA.h / 2 - 36);
+      ctx.font = '40px "VT323", monospace';
       ctx.fillStyle = '#d8ffe9';
-      ctx.fillText(`reach the ${this.preferredPortal.label}`, ARENA.w / 2, ARENA.h / 2 + 10);
-      ctx.font = '18px "VT323", monospace';
+      ctx.fillText(`reach the ${this.preferredPortal.label}`, ARENA.w / 2, ARENA.h / 2 + 16);
+      // Big icon next to portal name
+      ctx.font = '44px sans-serif';
+      ctx.fillText(this.preferredPortal.icon, ARENA.w / 2 - ctx.measureText(`reach the ${this.preferredPortal.label} `).width / 2 - 30, ARENA.h / 2 + 16);
+      ctx.font = '24px "VT323", monospace';
       ctx.fillStyle = '#6f8a7a';
       const controlsHint = isTouchDevice()
-        ? 'drag left side to move // tap DASH to dash'
-        : 'WASD or arrows to move // SPACE to dash // ESC to pause';
-      ctx.fillText(controlsHint, ARENA.w / 2, ARENA.h / 2 + 48);
+        ? 'drag left side to move  //  tap DASH to dash'
+        : 'WASD or arrows to move  //  SPACE to dash  //  ESC to pause';
+      ctx.fillText(controlsHint, ARENA.w / 2, ARENA.h / 2 + 64);
     }
   }
 }

@@ -87,7 +87,7 @@ export class Entity {
     ctx.stroke();
 
     // Icon
-    ctx.font = `${Math.floor(r * 1.2)}px sans-serif`;
+    ctx.font = `${Math.floor(r * 1.6)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(this.icon, this.x, this.y + 1);
@@ -95,9 +95,9 @@ export class Entity {
 
     // Name (player only)
     if (this.isPlayer && this.displayName) {
-      ctx.font = '12px "VT323", monospace';
+      ctx.font = '18px "VT323", monospace';
       ctx.fillStyle = '#d8ffe9';
-      ctx.fillText(this.displayName, this.x, this.y - r - 6);
+      ctx.fillText(this.displayName, this.x, this.y - r - 8);
     }
   }
 }
