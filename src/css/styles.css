@@ -463,13 +463,17 @@ canvas#game {
   padding: 1px 4px;
 }
 
-/* Responsive scaling */
+/* Hide terminal log on small or short viewports (i.e. phones, including landscape) */
+@media (max-width: 900px), (max-height: 600px) {
+  .terminal { display: none !important; }
+}
+
+/* Phone-sized viewports */
 @media (max-width: 720px) {
   .modal { min-width: 240px; max-width: 92vw; padding: 16px 18px; }
   .modal h1 { font-size: 22px; letter-spacing: 2px; }
   .modal .body { font-size: 16px; }
   .modal .stats { font-size: 14px; max-width: 280px; }
-  .terminal { display: none; }
   .hud { font-size: 14px; }
   .hud .pill { font-size: 13px; padding: 4px 8px; }
   .hud .pill .label { font-size: 11px; }
@@ -484,10 +488,14 @@ canvas#game {
   .hud .top-left  { left: 10px; top: 8px; }
 }
 
-/* Landscape mobile: stack tool buttons + joystick further from edges */
+/* Landscape phone (short viewport) */
 @media (max-height: 480px) {
   .touch-dash-btn { width: 70px; height: 70px; font-size: 16px; right: 14px; bottom: 60px; }
-  .touch-controller { bottom: 6px; }
+  .touch-controller { bottom: 6px; right: 110px; }
   .touch-tool-row { flex-direction: row; }
+  .hud .bottom-right { bottom: 6px; right: 110px; }
+  .hud .top-left, .hud .top-right { top: 6px; }
+  .hud .bottom-left { bottom: 6px; }
+  .exit-btn { top: 4px; padding: 2px 10px; font-size: 12px; }
 }
 

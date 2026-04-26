@@ -16,6 +16,35 @@ import { showRunnerControls, hideAll as hideTouchAll, isTouchDevice } from '../s
 import { COPY, pickRandom } from '../data/copy.js';
 
 const RUN_SECONDS = 60;
+const SAFE_SPAWN_MIN_DIST = 140; // logical px from any portal
+
+function pickSafeSpawn() {
+  // Pre-baked candidates that don't sit inside any portal.
+  const candidates = [
+    { x: 640, y: 540 },
+    { x: 640, y: 220 },
+    { x: 380, y: 360 },
+    { x: 900, y: 360 },
+    { x: 520, y: 470 },
+    { x: 760, y: 470 },
+  ];
+  const portals = [
+    { x: 0.10, y: 0.18 }, { x: 0.50, y: 0.10 }, { x: 0.90, y: 0.18 },
+    { x: 0.10, y: 0.82 }, { x: 0.30, y: 0.90 }, { x: 0.70, y: 0.90 },
+    { x: 0.90, y: 0.82 }, { x: 0.50, y: 0.50 },
+  ];
+  const distToPortals = (c) => {
+    let m = Infinity;
+    for (const p of portals) {
+      const dx = c.x - p.x * 1280;
+      const dy = c.y - p.y * 720;
+      m = Math.min(m, Math.hypot(dx, dy));
+    }
+    return m;
+  };
+  const safe = candidates.filter((c) => distToPortals(c) >= SAFE_SPAWN_MIN_DIST);
+  return safe[Math.floor(Math.random() * safe.length)] || candidates[0];
+}
 
 export class RunnerScene {
   constructor(game, opts = {}) {
@@ -56,11 +85,12 @@ export class RunnerScene {
     const archetype = getArchetype(archetypeId);
     this.preferredPortal = portalForArchetype(archetypeId);
 
-    // Spawn player at center
+    // Spawn well away from all portals (the random portal is dead center).
+    const spawn = pickSafeSpawn();
     this.player = new Entity({
       archetypeId,
-      x: ARENA.w / 2,
-      y: ARENA.h / 2,
+      x: spawn.x,
+      y: spawn.y,
       color: color || archetype.color,
       speed: archetype.speed * speedMult,
       hp,
