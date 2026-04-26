@@ -146,17 +146,21 @@ export function hideAll() {
   controllerCallbacks = {};
 }
 
-export function setControllerToolState({ freezeReady, quarantineUses }) {
+export function setControllerToolState({ freezeReady, quarantineUses, hasSelected }) {
   if (!controllerOverlay) return;
   const fb = controllerOverlay.querySelector('[data-tool="freeze"]');
   const qb = controllerOverlay.querySelector('[data-tool="quarantine"]');
+  const freezeArmed = !!hasSelected && !!freezeReady;
+  const quarantineArmed = !!hasSelected && quarantineUses > 0;
   if (fb) {
     fb.classList.toggle('cooling', !freezeReady);
-    fb.disabled = !freezeReady;
+    fb.classList.toggle('armed', freezeArmed);
+    fb.disabled = !freezeArmed;
   }
   if (qb) {
     qb.classList.toggle('depleted', quarantineUses <= 0);
-    qb.disabled = quarantineUses <= 0;
+    qb.classList.toggle('armed', quarantineArmed);
+    qb.disabled = !quarantineArmed;
     const name = qb.querySelector('.tool-name');
     if (name) name.textContent = `QUARANTINE (${quarantineUses})`;
   }

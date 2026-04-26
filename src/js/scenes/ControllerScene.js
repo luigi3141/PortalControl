@@ -355,6 +355,7 @@ export class ControllerScene {
     setControllerToolState({
       freezeReady: this.freezeCooldown <= 0,
       quarantineUses: this.quarantineUses,
+      hasSelected: !!this.selected,
     });
   }
 
