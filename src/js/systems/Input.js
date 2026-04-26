@@ -3,6 +3,9 @@
 const keys = new Set();
 const pressed = new Set(); // edge-triggered
 const pointer = { x: 0, y: 0, down: false, downEdge: false, upEdge: false };
+let touchAxisX = 0;
+let touchAxisY = 0;
+let dashRequested = false;
 
 const codeToKey = (e) => {
   const k = e.key;
@@ -65,6 +68,10 @@ export const Input = {
     if (this.isDown('w', 'ArrowUp'))    y -= 1;
     if (this.isDown('s', 'ArrowDown'))  y += 1;
     if (x && y) { const inv = 1 / Math.SQRT2; x *= inv; y *= inv; }
+    if (touchAxisX !== 0 || touchAxisY !== 0) {
+      x = touchAxisX;
+      y = touchAxisY;
+    }
     return { x, y };
   },
   pointer() { return pointer; },
@@ -77,6 +84,16 @@ export const Input = {
     const e = pointer.upEdge;
     pointer.upEdge = false;
     return e;
+  },
+  setTouchAxis(x, y) {
+    touchAxisX = x;
+    touchAxisY = y;
+  },
+  requestDash() { dashRequested = true; },
+  consumeDash() {
+    const r = dashRequested;
+    dashRequested = false;
+    return r;
   },
   endFrame() {
     pressed.clear();

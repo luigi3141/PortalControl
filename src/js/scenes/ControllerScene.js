@@ -9,8 +9,9 @@ import { Entity } from '../systems/Entity.js';
 import { Particles } from '../systems/Particles.js';
 import { Audio } from '../systems/AudioSystem.js';
 import { showModal, hideModal } from '../ui/Modal.js';
-import { setHud } from '../ui/Hud.js';
+import { setHud, showExitButton, hideExitButton } from '../ui/Hud.js';
 import { termLog } from '../systems/Terminal.js';
+import { showControllerControls, hideAll as hideTouchAll, setControllerToolState } from '../systems/TouchControls.js';
 import { COPY, pickRandom } from '../data/copy.js';
 
 export class ControllerScene {
@@ -47,8 +48,39 @@ export class ControllerScene {
     termLog(COPY.terminal.surge, 'warn');
   }
 
-  destroy() {}
-  enter() { this.updateHud(); }
+  destroy() { hideTouchAll(); hideExitButton(); }
+  enter() {
+    this.updateHud();
+    showControllerControls({
+      onFreeze: () => this.useFreeze(),
+      onQuarantine: () => this.useQuarantine(),
+    });
+    showExitButton(() => this.confirmExit());
+  }
+
+  useFreeze() {
+    if (this.over || !this.selected || this.freezeCooldown > 0) return;
+    this.selected.frozenUntil = this.t + 1.5;
+    this.freezeCooldown = 4.0;
+    Audio.beep(1200);
+    termLog(`freeze beam // ${this.selected.archetype.label}`);
+  }
+
+  useQuarantine() {
+    if (this.over || !this.selected || this.quarantineUses <= 0) return;
+    this.quarantineUses--;
+    const idx = this.entities.indexOf(this.selected);
+    if (idx >= 0) this.entities.splice(idx, 1);
+    this.selected.x = 90;
+    this.selected.y = 90;
+    this.selected.vx = 0;
+    this.selected.vy = 0;
+    this.selected.assignedPortalId = null;
+    this.quarantine.push(this.selected);
+    termLog(`quarantined // ${this.selected.archetype.label}`, 'warn');
+    this.selected = null;
+    Audio.beep(440);
+  }
 
   difficulty() {
     return {
@@ -95,26 +127,8 @@ export class ControllerScene {
     if (Input.wasPressed('1') && this.selected) {
       // Quick: assign to correct portal as a hint? No — leave for click-to-route.
     }
-    if (Input.wasPressed('f') && this.selected && this.freezeCooldown <= 0) {
-      this.selected.frozenUntil = this.t + 1.5;
-      this.freezeCooldown = 4.0;
-      Audio.beep(1200);
-      termLog(`freeze beam // ${this.selected.archetype.label}`);
-    }
-    if (Input.wasPressed('q') && this.selected && this.quarantineUses > 0) {
-      this.quarantineUses--;
-      const idx = this.entities.indexOf(this.selected);
-      if (idx >= 0) this.entities.splice(idx, 1);
-      this.selected.x = 90;
-      this.selected.y = 90;
-      this.selected.vx = 0;
-      this.selected.vy = 0;
-      this.selected.assignedPortalId = null;
-      this.quarantine.push(this.selected);
-      termLog(`quarantined // ${this.selected.archetype.label}`, 'warn');
-      this.selected = null;
-      Audio.beep(440);
-    }
+    if (Input.wasPressed('f')) this.useFreeze();
+    if (Input.wasPressed('q')) this.useQuarantine();
     if (this.freezeCooldown > 0) this.freezeCooldown -= dt;
 
     // Spawn
@@ -336,10 +350,11 @@ export class ControllerScene {
         { label: 'CORRECT', value: this.routedCorrect },
         { label: 'WRONG',   value: this.routedWrong, warn: this.routedWrong > 0 },
       ],
-      bottomRight: [
-        { label: 'FREEZE [F]', value: this.freezeCooldown > 0 ? `${this.freezeCooldown.toFixed(1)}s` : 'READY' },
-        { label: 'QUARANTINE [Q]', value: this.quarantineUses, warn: this.quarantineUses === 0 },
-      ],
+      bottomRight: [],
+    });
+    setControllerToolState({
+      freezeReady: this.freezeCooldown <= 0,
+      quarantineUses: this.quarantineUses,
     });
   }
 

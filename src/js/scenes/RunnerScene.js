@@ -9,9 +9,10 @@ import { Entity } from '../systems/Entity.js';
 import { Particles } from '../systems/Particles.js';
 import { Audio } from '../systems/AudioSystem.js';
 import { showModal, hideModal } from '../ui/Modal.js';
-import { setHud } from '../ui/Hud.js';
+import { setHud, showExitButton, hideExitButton } from '../ui/Hud.js';
 import { termLog } from '../systems/Terminal.js';
 import { goToVibePortal } from '../systems/VibeJamIntegration.js';
+import { showRunnerControls, hideAll as hideTouchAll, isTouchDevice } from '../systems/TouchControls.js';
 import { COPY, pickRandom } from '../data/copy.js';
 
 const RUN_SECONDS = 60;
@@ -86,9 +87,11 @@ export class RunnerScene {
     if (opts.portalArrival) termLog(`[runner] portal arrival // ref=${incoming.ref || 'unknown'}`, 'ok');
   }
 
-  destroy() {}
+  destroy() { hideTouchAll(); hideExitButton(); }
   enter() {
     this.updateHud();
+    showRunnerControls();
+    showExitButton(() => this.confirmExit());
   }
 
   buildGates() {
@@ -297,7 +300,8 @@ export class RunnerScene {
 
     // Dash
     let dashing = this.t < this.dashUntil;
-    if (Input.wasPressed(' ') && this.dashCooldown <= 0 && (ax.x || ax.y)) {
+    const dashRequested = Input.wasPressed(' ') || Input.consumeDash();
+    if (dashRequested && this.dashCooldown <= 0 && (ax.x || ax.y)) {
       this.dashUntil = this.t + 0.18;
       this.dashCooldown = 1.4;
       this.dashCount++;
@@ -575,7 +579,10 @@ export class RunnerScene {
       ctx.fillText(`reach the ${this.preferredPortal.label}`, ARENA.w / 2, ARENA.h / 2 + 10);
       ctx.font = '18px "VT323", monospace';
       ctx.fillStyle = '#6f8a7a';
-      ctx.fillText('WASD or arrows to move // SPACE to dash // ESC to pause', ARENA.w / 2, ARENA.h / 2 + 48);
+      const controlsHint = isTouchDevice()
+        ? 'drag left side to move // tap DASH to dash'
+        : 'WASD or arrows to move // SPACE to dash // ESC to pause';
+      ctx.fillText(controlsHint, ARENA.w / 2, ARENA.h / 2 + 48);
     }
   }
 }

@@ -30,9 +30,12 @@ export class MainMenuScene {
   layoutButtons() {
     const w = 320;
     const h = 56;
-    const gap = 14;
+    const gap = 12;
     const total = BUTTONS.length * h + (BUTTONS.length - 1) * gap;
-    const startY = ARENA.h * 0.55;
+    // Anchor the button stack so the bottom sits at ~78% of arena height,
+    // leaving room for footer + Vibe Jam widget badge below.
+    const bottomAnchor = ARENA.h * 0.78;
+    const startY = bottomAnchor - total;
     return BUTTONS.map((b, i) => ({
       ...b,
       x: ARENA.w / 2 - w / 2,

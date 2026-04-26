@@ -4,6 +4,7 @@ import { ARENA } from './systems/Arena.js';
 import { hideModal } from './ui/Modal.js';
 import { hideHud, showHud } from './ui/Hud.js';
 import { showTerminal, clearTerminal, termBoot } from './systems/Terminal.js';
+import { hideAll as hideTouchAll } from './systems/TouchControls.js';
 import { COPY } from './data/copy.js';
 import { MainMenuScene } from './scenes/MainMenuScene.js';
 import { RunnerScene } from './scenes/RunnerScene.js';
@@ -32,6 +33,7 @@ export class Game {
 
   showMainMenu() {
     showTerminal(false);
+    hideTouchAll();
     this.setScene(new MainMenuScene(this));
   }
 

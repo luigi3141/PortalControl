@@ -1,9 +1,16 @@
 // HUD overlay (DOM-based for crisp text).
 
 let root = null;
+let exitBtn = null;
+let exitHandler = null;
 
 export function initHud() {
   root = document.getElementById('hud');
+  exitBtn = document.getElementById('exit-btn');
+  exitBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    exitHandler?.();
+  });
 }
 
 export function showHud() {
@@ -13,7 +20,18 @@ export function hideHud() {
   if (root) {
     root.classList.add('hidden');
     root.innerHTML = '';
+    delete root.dataset.ready;
   }
+  hideExitButton();
+}
+
+export function showExitButton(onClick) {
+  exitHandler = onClick;
+  exitBtn?.classList.remove('hidden');
+}
+export function hideExitButton() {
+  exitHandler = null;
+  exitBtn?.classList.add('hidden');
 }
 
 function ensureRows() {
