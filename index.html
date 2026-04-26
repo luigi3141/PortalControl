@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#0a0f0a" />
+    <title>Portal Control</title>
+    <meta name="description" content="Portal Control — escape the system or become the system. A Vibe Jam 2026 game." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" />
+    <link rel="stylesheet" href="./src/css/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game" width="1280" height="720"></canvas>
+
+      <div id="hud" class="hud hidden"></div>
+
+      <div id="modal-root" class="modal-root hidden"></div>
+
+      <div id="terminal" class="terminal hidden">
+        <div class="terminal-header">vibe-portal-controller // tty1</div>
+        <div id="terminal-log" class="terminal-log"></div>
+      </div>
+
+      <div id="boot" class="boot">
+        <div class="boot-inner">
+          <div class="boot-title">PORTAL CONTROL</div>
+          <div class="boot-sub">booting vibe backend...</div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./src/js/main.js"></script>
+    <script async src="https://vibej.am/2026/widget.js"></script>
+  </body>
+</html>
